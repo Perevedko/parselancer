@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-
+# coding: utf-8
 
 from db import *
 import telebot
@@ -23,24 +22,26 @@ def handle_list(message):
     if message.chat.id < 0:
         bot.send_message(message.chat.id, 'Please use private messages')
         return
-    text = '\U0001f1f7\U0001f1fa /freelansim -- Last job from freelansim.ru\n'+\
-           '\U0001f1f7\U0001f1fa /freelancehunt -- Last job from freelansim.ru\n'+\
-           '\U0001f1fa\U0001f1f8 /freelancecom -- Last job from freelance.com'
+    text = '\n'.join([
+        '\U0001f1f7\U0001f1fa /freelansim -- Last job from freelansim.ru',
+        '\U0001f1f7\U0001f1fa /freelancehunt -- Last job from freelansim.ru',
+        '\U0001f1fa\U0001f1f8 /freelancecom -- Last job from freelance.com'
+    ])
 
     bot.send_message(message.chat.id, text)
 
 @bot.message_handler(commands=['stats', 'st'])
 def handle_stats(message):
-    
-    text = 'Statistics by category of job'
-    text = text+'\n'+'``` Time            ( 1   /7   /30 days)```'
+    text = [
+        'Statistics by category of job',
+        '``` Time            ( 1   /7   /30 days)```'
+    ]
     categories = ['admin', 'webdev', 'dev', 'webdis']
     for category in categories:
-        # print(category)
         day, week, month = get_stats_by(category)
-        text = text+'\n'+'``` Jobs in {:8s}: {:,d}  {:,d}  {:,d}```'.format(category, day, week, month) 
-        # print(text)
-
+        string = f'``` Jobs in {category:8s}: {day:,d}  {week:,d}  {month:,d}```'
+        text.append(string)
+    text = '\n'.join(text)
     print(text)
     bot.send_message(message.chat.id, text, parse_mode='MARKDOWN')
 
@@ -203,12 +204,19 @@ def handle_develop_subscribe(message):
         finally:
             session.close()
 
-    output = 'Chat ID: ' + str(message.chat.id) + \
-             '\nUser ID: ' + str(message.from_user.id) + \
-             '\nNick: ' + str(message.from_user.username) + \
-             '\nLast JOB ID in this category: ' + str(get_last_job('dev')) + \
-             '\nYou subscribed on Development category'
-    bot.send_message(message.chat.id, output)
+    # output = 'Chat ID: ' + str(message.chat.id) + \
+    #          '\nUser ID: ' + str(message.from_user.id) + \
+    #          '\nNick: ' + str(message.from_user.username) + \
+    #          '\nLast JOB ID in this category: ' + str(get_last_job('dev')) + \
+    #          '\nYou subscribed on Development category'
+    output = [
+        f'Chat ID: {message.chat.id}',
+        f'User ID: {message.from_user.id}',
+        f'Nick: {message.from_user.username}',
+        f'Last JOB ID in this category: {get_last_job("dev")}',
+        'You subscribed on Development category'
+    ]
+    bot.send_message(message.chat.id, '\n'.join(output))
 
 @bot.message_handler(commands=['subscribe_webdev', 'swd'])
 def handle_webdevelop_subscribe(message):
